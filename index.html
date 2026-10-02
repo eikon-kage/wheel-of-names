@@ -4,6 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Wheel of Names</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/svg+xml" href="logo.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<meta name="theme-color" content="#f5f5f5">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&family=Quicksand:wght@700&display=swap" rel="stylesheet">
 <style>
@@ -31,9 +37,9 @@
     box-shadow: 0 1px 5px rgba(0,0,0,.2), 0 2px 2px rgba(0,0,0,.14), 0 3px 1px -2px rgba(0,0,0,.12);
     position: relative; z-index: 2;
   }
-  header .logo { width: 38px; height: 38px; border-radius: 6px;
-    background: conic-gradient(#5dade2 0 25%, #82e0aa 0 50%, #f7dc6f 0 75%, #af7ac5 0); margin-right: 8px;
+  header .logo { width: 38px; height: 38px; margin-right: 8px; flex: none;
     user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: none; }
+  header .logo svg { width: 100%; height: 100%; display: block; pointer-events: none; }
   header h1 { font-size: 23.1px; font-weight: 500; margin: 0; white-space: nowrap; }
   header .spacer { flex: 1; }
   .hbtn { display: flex; align-items: center; gap: 8px; background: transparent; border: 0; color: #000;
@@ -89,12 +95,14 @@
   .dbtn.primary { background: var(--primary); color: #fff; }
   .dbtn.primary:hover { filter: brightness(1.08); }
 
-  #secret .dialog { width: 380px; }
+  #secret .dialog { width: 380px; max-height: 92vh; overflow: auto; }
   #secret .head { background: var(--header-bg); }
-  #secretList { max-height: 50vh; overflow: auto; padding: 8px 20px; font-size: 15px; }
+  #secretList { max-height: 35vh; overflow: auto; padding: 8px 20px; font-size: 15px; }
   #secretList label { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid #eee; cursor: pointer; }
   #secretList input { width: 17px; height: 17px; accent-color: var(--primary); }
   #secret .note { padding: 8px 20px 0; color: #757575; font-size: 12.5px; }
+  #secret .sub { padding: 12px 20px 4px; font-size: 13px; font-weight: 500; }
+  #secret textarea#blockedInput { display: block; margin: 0 20px; width: calc(100% - 40px); min-height: 90px; flex: none; }
 
   #confetti { position: fixed; inset: 0; pointer-events: none; z-index: 30; }
 
@@ -108,7 +116,7 @@
 </head>
 <body>
 <header>
-  <div class="logo" id="logo"></div>
+  <div class="logo" id="logo"><svg viewBox="0 0 170 170"><defs><clipPath id="lc"><rect x="6" y="6" width="158" height="158" rx="30"/></clipPath></defs><g clip-path="url(#lc)"><rect width="170" height="170" fill="#5dade2"/><path d="M46 88L-213.8 78.9L-198.3 -0.9Z" fill="#5dade2"/><path d="M46 88L-198.3 -0.9L-68.0 -145.7Z" fill="#82e0aa"/><path d="M46 88L-68.0 -145.7L36.9 -171.8Z" fill="#f7dc6f"/><path d="M46 88L36.9 -171.8L183.8 -132.5Z" fill="#af7ac5"/><path d="M46 88L183.8 -132.5L271.2 -42.0Z" fill="#5dade2"/><path d="M46 88L271.2 -42.0L306.0 88.0Z" fill="#82e0aa"/><path d="M46 88L306.0 88.0L275.6 210.1Z" fill="#f7dc6f"/><path d="M46 88L275.6 210.1L183.8 308.5Z" fill="#af7ac5"/><path d="M46 88L183.8 308.5L18.8 346.6Z" fill="#5dade2"/><path d="M46 88L18.8 346.6L-114.1 292.9Z" fill="#82e0aa"/><path d="M46 88L-114.1 292.9L-198.3 176.9Z" fill="#5dade2"/><path d="M46 88L-198.3 176.9L-213.4 106.1Z" fill="#af7ac5"/><path d="M46 88L-213.4 106.1L-213.8 78.9Z" fill="#82e0aa"/><circle cx="46" cy="88" r="21" fill="#fff"/></g><rect x="6" y="6" width="158" height="158" rx="30" fill="none" stroke="#5dade2" stroke-width="9"/></svg></div>
   <h1>Wheel of Names</h1>
   <div class="spacer"></div>
   <button class="hbtn" id="newBtn"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg><span>New</span></button>
@@ -160,7 +168,10 @@
 <div id="secret" class="overlay hidden">
   <div class="dialog">
     <div class="head">Không bao giờ trúng</div>
+    <div class="sub">Tên đang có trên vòng quay</div>
     <div id="secretList"></div>
+    <div class="sub">Danh sách chặn (điền trước cũng được, mỗi dòng một tên)</div>
+    <textarea id="blockedInput" spellcheck="false" placeholder="Ví dụ: Nguyễn Văn A"></textarea>
     <div class="note">Tên được tick vẫn hiện trên vòng quay nhưng không bao giờ được chọn. Mở/đóng: Ctrl/Cmd + Shift + X, hoặc giữ logo 3 giây.</div>
     <div class="foot"><button class="dbtn primary" id="closeSecret">Xong</button></div>
   </div>
@@ -187,7 +198,15 @@
 
   let names = store.get('won.names', DEFAULT_NAMES);
   let results = store.get('won.results', []);
-  let blocked = new Set(store.get('won.blocked', []));   // names that can never win
+  // names that can never win; matched ignoring case and extra spaces so names typed in advance still hit
+  const keyOf = s => s.normalize('NFC').trim().replace(/\s+/g, ' ').toLowerCase();
+  let blockedList = store.get('won.blocked', []);
+  let blocked = new Set(blockedList.map(keyOf));
+  function setBlocked(list) {
+    blockedList = [...new Map(list.map(s => s.trim()).filter(Boolean).map(s => [keyOf(s), s])).values()];
+    blocked = new Set(blockedList.map(keyOf));
+    store.set('won.blocked', blockedList);
+  }
   let rotation = 167.5 * Math.PI / 180;   // same resting pose as the original: 4th entry under the pointer
   let spinning = false;
   let spunOnce = false;
@@ -347,7 +366,7 @@
   function pickWinner() {
     const n = names.length;
     const eligible = [];
-    for (let i = 0; i < n; i++) if (!blocked.has(names[i])) eligible.push(i);
+    for (let i = 0; i < n; i++) if (!blocked.has(keyOf(names[i]))) eligible.push(i);
     const pool = eligible.length ? eligible : [...Array(n).keys()];
     const buf = new Uint32Array(1);
     crypto.getRandomValues(buf);
@@ -473,22 +492,26 @@
   function renderSecret() {
     const list = $('secretList');
     list.innerHTML = '';
-    const unique = [...new Set(names)];
+    const unique = [...new Map(names.map(n => [keyOf(n), n])).values()];
     if (!unique.length) { list.textContent = 'Chưa có tên nào.'; return; }
     for (const name of unique) {
       const label = document.createElement('label');
       const cb = document.createElement('input');
       cb.type = 'checkbox';
-      cb.checked = blocked.has(name);
-      cb.onchange = () => { cb.checked ? blocked.add(name) : blocked.delete(name); store.set('won.blocked', [...blocked]); };
+      cb.checked = blocked.has(keyOf(name));
+      cb.onchange = () => {
+        setBlocked(cb.checked ? [...blockedList, name] : blockedList.filter(b => keyOf(b) !== keyOf(name)));
+        $('blockedInput').value = blockedList.join('\n');
+      };
       label.append(cb, document.createTextNode(name));
       list.append(label);
     }
   }
+  $('blockedInput').addEventListener('input', e => { setBlocked(e.target.value.split('\n')); renderSecret(); });
   function toggleSecret(show) {
     const el = $('secret');
     const open = show ?? el.classList.contains('hidden');
-    if (open) renderSecret();
+    if (open) { renderSecret(); $('blockedInput').value = blockedList.join('\n'); }
     el.classList.toggle('hidden', !open);
   }
   $('closeSecret').onclick = () => toggleSecret(false);
