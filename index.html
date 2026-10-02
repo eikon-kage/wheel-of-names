@@ -32,7 +32,8 @@
     position: relative; z-index: 2;
   }
   header .logo { width: 38px; height: 38px; border-radius: 6px;
-    background: conic-gradient(#5dade2 0 25%, #82e0aa 0 50%, #f7dc6f 0 75%, #af7ac5 0); margin-right: 8px; }
+    background: conic-gradient(#5dade2 0 25%, #82e0aa 0 50%, #f7dc6f 0 75%, #af7ac5 0); margin-right: 8px;
+    user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: none; }
   header h1 { font-size: 23.1px; font-weight: 500; margin: 0; white-space: nowrap; }
   header .spacer { flex: 1; }
   .hbtn { display: flex; align-items: center; gap: 8px; background: transparent; border: 0; color: #000;
@@ -107,7 +108,7 @@
 </head>
 <body>
 <header>
-  <div class="logo"></div>
+  <div class="logo" id="logo"></div>
   <h1>Wheel of Names</h1>
   <div class="spacer"></div>
   <button class="hbtn" id="newBtn"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg><span>New</span></button>
@@ -155,12 +156,12 @@
   </div>
 </div>
 
-<!-- Ctrl/Cmd + Shift + X -->
+<!-- Ctrl/Cmd + Shift + X, or hold the logo for 3 seconds -->
 <div id="secret" class="overlay hidden">
   <div class="dialog">
     <div class="head">Không bao giờ trúng</div>
     <div id="secretList"></div>
-    <div class="note">Tên được tick vẫn hiện trên vòng quay nhưng không bao giờ được chọn. Ctrl/Cmd + Shift + X để đóng/mở.</div>
+    <div class="note">Tên được tick vẫn hiện trên vòng quay nhưng không bao giờ được chọn. Mở/đóng: Ctrl/Cmd + Shift + X, hoặc giữ logo 3 giây.</div>
     <div class="foot"><button class="dbtn primary" id="closeSecret">Xong</button></div>
   </div>
 </div>
@@ -491,6 +492,14 @@
     el.classList.toggle('hidden', !open);
   }
   $('closeSecret').onclick = () => toggleSecret(false);
+
+  // touch devices have no keyboard: holding the logo for 3s opens the panel
+  let holdTimer;
+  const logo = $('logo');
+  const cancelHold = () => clearTimeout(holdTimer);
+  logo.addEventListener('pointerdown', () => { cancelHold(); holdTimer = setTimeout(() => toggleSecret(true), 3000); });
+  ['pointerup', 'pointerleave', 'pointercancel'].forEach(ev => logo.addEventListener(ev, cancelHold));
+  logo.addEventListener('contextmenu', e => e.preventDefault());
 
   document.addEventListener('keydown', e => {
     if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'x') {
